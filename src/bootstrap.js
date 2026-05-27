@@ -3,7 +3,7 @@
 const fs = require('fs-extra');
 const path = require('path');
 const mime = require('mime-types');
-const { families, birds, categories, authors, articles, global, about } = require('../data/data.json');
+const { families, birds, members, categories, authors, articles, global, about } = require('../data/data.json');
 
 async function seedExampleApp() {
   const shouldImportSeedData = await isFirstRun();
@@ -18,6 +18,7 @@ async function seedExampleApp() {
       about: ['find', 'findOne'],
       bird: ['find', 'findOne'],
       family: ['find', 'findOne'],
+      member: ['find', 'findOne'],
     });
   } catch (error) {
     console.log('Could not set public permissions');
@@ -311,10 +312,27 @@ async function importBirdsFn() {
 
 }
 
+async function importMembersFn() {
+  for (const member of members) {
+    await createEntry({
+      model: 'member',
+      entry: {
+        name: member.name,
+        title: member.title,
+        role: member.role,
+        bio: member.bio,
+        group: member.group,
+        sortOrder: member.sortOrder,
+      },
+    });
+  }
+}
+
 async function importSeedData() {
   // Create all entries
   await importFamiliesFn();
   await importBirdsFn();
+  await importMembersFn();
   await importCategories();
   await importAuthors();
   await importArticles();
