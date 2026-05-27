@@ -3,7 +3,7 @@
 const fs = require('fs-extra');
 const path = require('path');
 const mime = require('mime-types');
-const { categories, authors, articles, global, about } = require('../data/data.json');
+const { families, birds, categories, authors, articles, global, about } = require('../data/data.json');
 
 async function seedExampleApp() {
   const shouldImportSeedData = await isFirstRun();
@@ -236,6 +236,65 @@ async function importAuthors() {
   }
 }
 
+async function importFamiliesFn() {
+  for (const family of families) {
+    await createEntry({ model: 'family', entry: { name: family.name, slug: family.slug, description: family.description } });
+  }
+}
+
+async function getFamilyIdByName(name) {
+  const result = await strapi.documents('api::family.family').findFirst({
+    filters: { name },
+  });
+  return result?.id;
+}
+
+async function importBirdsFn() {
+  for (const bird of birds) {
+    const familyId = bird.family ? await getFamilyIdByName(bird.family) : null;
+
+    const uploadedImages = [];
+    if (bird.images && bird.images.length > 0) {
+      const imagesToUpload = bird.images.filter(Boolean);
+      if (imagesToUpload.length > 0) {
+        const uploaded = await checkFileExistsBeforeUpload(imagesToUpload);
+        const uploadedArray = Array.isArray(uploaded) ? uploaded : [uploaded];
+        uploadedImages.push(...uploadedArray.map((f) => f.id));
+      }
+    }
+
+    await createEntry({
+      model: 'bird',
+      entry: {
+        commonName: bird.commonName,
+        scientificName: bird.scientificName,
+        mongolianName: bird.mongolianName,
+        slug: bird.slug,
+        order: bird.order,
+        conservationStatus: bird.conservationStatus,
+        mongolianStatus: bird.mongolianStatus,
+        description: bird.description,
+        identification: bird.identification,
+        habitat: bird.habitat,
+        diet: bird.diet,
+        breeding: bird.breeding,
+        migration: bird.migration,
+        size: bird.size,
+        wingspan: bird.wingspan,
+        weight: bird.weight,
+        iucnUrl: bird.iucnUrl,
+        threats: bird.threats,
+        population: bird.population,
+        latitude: bird.latitude,
+        longitude: bird.longitude,
+        images: uploadedImages,
+        family: familyId ? { connect: [{ id: familyId }] } : undefined,
+      },
+    });
+  }
+
+}
+
 async function importSeedData() {
   // Allow read of application content types
   await setPublicPermissions({
@@ -244,9 +303,13 @@ async function importSeedData() {
     author: ['find', 'findOne'],
     global: ['find', 'findOne'],
     about: ['find', 'findOne'],
+    bird: ['find', 'findOne'],
+    family: ['find', 'findOne'],
   });
 
   // Create all entries
+  await importFamiliesFn();
+  await importBirdsFn();
   await importCategories();
   await importAuthors();
   await importArticles();

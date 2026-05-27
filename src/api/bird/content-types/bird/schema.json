@@ -1,0 +1,114 @@
+{
+  "kind": "collectionType",
+  "collectionName": "birds",
+  "info": {
+    "singularName": "bird",
+    "pluralName": "birds",
+    "displayName": "Bird",
+    "description": "Mongolian bird species database"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "commonName": {
+      "type": "string",
+      "required": true
+    },
+    "scientificName": {
+      "type": "string"
+    },
+    "mongolianName": {
+      "type": "string"
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "commonName",
+      "required": true
+    },
+    "order": {
+      "type": "string"
+    },
+    "conservationStatus": {
+      "type": "enumeration",
+      "enum": ["LC", "NT", "VU", "EN", "CR", "EW", "EX"]
+    },
+    "mongolianStatus": {
+      "type": "enumeration",
+      "enum": ["Resident", "Breeding", "Migrant", "Vagrant", "Unknown"]
+    },
+    "description": {
+      "type": "richtext"
+    },
+    "identification": {
+      "type": "richtext"
+    },
+    "habitat": {
+      "type": "richtext"
+    },
+    "diet": {
+      "type": "richtext"
+    },
+    "breeding": {
+      "type": "richtext"
+    },
+    "migration": {
+      "type": "richtext"
+    },
+    "size": {
+      "type": "string"
+    },
+    "wingspan": {
+      "type": "string"
+    },
+    "weight": {
+      "type": "string"
+    },
+    "iucnUrl": {
+      "type": "string"
+    },
+    "threats": {
+      "type": "richtext"
+    },
+    "population": {
+      "type": "string"
+    },
+    "latitude": {
+      "type": "float"
+    },
+    "longitude": {
+      "type": "float"
+    },
+    "images": {
+      "type": "media",
+      "multiple": true,
+      "required": false,
+      "allowedTypes": ["images"]
+    },
+    "audioCall": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": ["files"]
+    },
+    "family": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::family.family",
+      "inversedBy": "birds"
+    },
+    "similarSpecies": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::bird.bird",
+      "inversedBy": "similarSpeciesOf"
+    },
+    "similarSpeciesOf": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::bird.bird",
+      "mappedBy": "similarSpecies"
+    }
+  }
+}
