@@ -8,6 +8,22 @@ const { families, birds, categories, authors, articles, global, about } = requir
 async function seedExampleApp() {
   const shouldImportSeedData = await isFirstRun();
 
+  // Always set public permissions (new content types added after first deploy)
+  try {
+    await setPublicPermissions({
+      article: ['find', 'findOne'],
+      category: ['find', 'findOne'],
+      author: ['find', 'findOne'],
+      global: ['find', 'findOne'],
+      about: ['find', 'findOne'],
+      bird: ['find', 'findOne'],
+      family: ['find', 'findOne'],
+    });
+  } catch (error) {
+    console.log('Could not set public permissions');
+    console.error(error);
+  }
+
   if (shouldImportSeedData) {
     try {
       console.log('Setting up the template...');
@@ -296,17 +312,6 @@ async function importBirdsFn() {
 }
 
 async function importSeedData() {
-  // Allow read of application content types
-  await setPublicPermissions({
-    article: ['find', 'findOne'],
-    category: ['find', 'findOne'],
-    author: ['find', 'findOne'],
-    global: ['find', 'findOne'],
-    about: ['find', 'findOne'],
-    bird: ['find', 'findOne'],
-    family: ['find', 'findOne'],
-  });
-
   // Create all entries
   await importFamiliesFn();
   await importBirdsFn();
